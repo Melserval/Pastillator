@@ -1,0 +1,120 @@
+html {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	position: relative;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgb(224, 215, 205);
+}
+
+header {
+	margin-bottom: 2px;
+	padding: 0 10px 0 10px;
+	height: 50px;
+	line-height: 50px;
+	background-color: #ffdfb6;
+	border: thin solid #ce6006;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 12px;
+}
+
+// панель управление создания/изменением класса
+#class-controll {
+	float: left;
+	width: 1200px;
+	#class-operation-info {
+		padding: 5px;
+		font-size: 20px;
+		color: brown;
+	}
+
+	input {
+		margin-left: 5px;
+		padding-left: 5px;
+		border: solid 1px #e67c26;
+		border-radius: 3px;
+		height: 30px;
+		font-size: 15px;
+		box-sizing: border-box;
+	}
+	[type="button"] {
+		margin-left: 100px;
+		border: solid 1px #e67c26;
+		background-color: #f1a86b;
+		cursor: pointer;
+	}
+}
+
+// инфо панель - классов/пастилок/существ
+#class-info {
+	float: right;
+	width: 300px;
+	
+	.info {
+		font-size: 14px;
+		color: $header_color;
+	}
+}
+
+
+#pastels-for-unit-in-class {
+	height: $height_line_pastels_count;
+	line-height: $height_line_pastels_count;
+	background-color: #98d346;
+}
+
+#all-unit-count-in-class {
+	height: $height_line_pastels_count;
+	line-height: $height_line_pastels_count;
+	background-color: #e67c26;
+}
+
+#pastels-for-all-in-class {
+	height: $height_line_pastels_count;	
+	line-height: $height_line_pastels_count;
+	background-color: rgb(190, 58, 252);
+}
+
+#classes-conteiner {
+	position: absolute;
+	top: 75px;
+	bottom: 150px;
+	left: 100px;
+	right: 100px;
+	border: 2px solid white;
+	background-color: #F9F9F9;
+}
+
+.class-conteiner {
+	position: relative;
+	display: inline-block;
+	min-width: 40px;
+	height: 100%;
+	text-align: center;
+	padding: 1px;
+	background-color: #f7f4f4;
+
+	.diagram-conteiner {
+		width: 0px;
+		height: 0px;
+		background-color: #3C890E;
+	}
+	
+	.info-conteiner {
+		position: absolute;
+		bottom: 0px;
+		left: 0px;
+		right: 0px;
+		background-color: #adccdb;
+
+		> div {
+			height: $height_line_pastels_count;	
+			line-height: $height_line_pastels_count;
+		}
+	}
+}

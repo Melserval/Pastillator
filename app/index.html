@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Pastellator</title>
+	<link rel="stylesheet" href="css/master.css">
+	<script src="js/main.js" defer></script>
+	<script src="js/RenderUnitClass.js" defer></script>
+	<script src="js/UnitClass.js" defer></script>
+</head>
+<body>
+	<header>
+		<div id="class-controll">
+			<span id="class-operation-info">Новый класс: Создание</span>
+			<label for=""><span>Название класса:</span><input type="text" size="20" value="Новый"></label>
+			<label for=""><span>Пастилок каждому:</span><input type="text" size="6" value="0"></label>
+			<label for=""><span>Существ в классе:</span><input type="text" size="6" value="0"></label>
+			<input type="button" value="Применить">
+		</div>
+		<!-- Показ общей информации -->
+		<div id="class-info">
+			<span class="title">Классов: </span><span class="info">0</span>
+			<span class="title">Пастилок: </span><span class="info">0</span>
+			<span class="title">Существ: </span><span class="info">0</span>
+		</div>
+	</header>
+
+	<div id="classes-conteiner">
+	<!-- Сюда вставляются классы сгенерированные JS -->
+		<!-- <div class="class-conteiner">
+			<div class="diagram-conteiner" style="color: rgb(132, 42, 216);">
+			</div>
+			<div class="info-conteiner">
+				<div class="class-name">первый</div>
+				<div class="pastel-for-unit">15</div>
+				<div class="all-unit">10</div>
+				<div class="all-pastels">150</div>
+			</div>
+		</div> -->
+	</div>
+</body>
+</html>
