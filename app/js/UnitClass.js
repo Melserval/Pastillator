@@ -7,7 +7,8 @@
  * @param {number} unitCount стартовое количество членов класса
  * @param {HTMLElement} renderParentNode корневой элемент для вью.
  */
-function UnitClass(className, pastilsForUnit, unitCount, renderParentNode) {
+function UnitClass(className, pastilsForUnit, unitCount, renderParentNode, id) {
+	this.id =  id ?? +new Date();
 	this.name = className;
 	this.pastils = Number(pastilsForUnit);
 	this._units = Number(unitCount);
@@ -37,10 +38,21 @@ function UnitClass(className, pastilsForUnit, unitCount, renderParentNode) {
 	// иначе размеры будут нулевые и не получится 
 	// правильно задать размер для диаграммы.
 	this.constructor.updateStatePercents();
-
-	// контрольное уведомление 
-	console.log(this);
 }
+
+
+/**
+ * Сериализатор данных обьекта UnitClass.
+ * (планиуемое использование - в локальном хранилище).
+ */
+UnitClass.prototype.valueOf = function() {
+	return {
+		"id":      this.id,
+		"name":    this.name,
+		"pastils": this.pastils,
+		"units":   this._units,
+	};
+};
 
 /**
  * Коллекция созданных классов, используется для
@@ -121,7 +133,6 @@ UnitClass.updateStatePercents = function () {
 	this.prototype.unitCollection.forEach(unit => {
 		// вычисление: процент пастилок на существо в классе, относительно других классов.
 		unit.percentPastilsForUnit = unit.pastils / coff_pastils;
-		console.log(unit.percentPastilsForUnit);
 
 		// вычисление: процент пастилок на класс, относительно общего числа пастилок.
 		unit.percentOfAllPastils = (all_pastils > 0) ? unit.pastilsForClass / all_pastils: 0;

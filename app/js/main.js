@@ -1,6 +1,5 @@
 'use strict';
 
-
 // елементы панели контроля классов.
 const classControllPanel = {
     conteiner: document.getElementById('class-controll'),
@@ -23,13 +22,18 @@ const classInfoPanel = {
 };
 
 classControllPanel.inputApplyButton.addEventListener('click', function (event) {
-    new UnitClass(
+    let uc = new UnitClass(
         classControllPanel.inputClassName.value,
         classControllPanel.inputPastilCount.value,
         classControllPanel.inputUnitCount.value,
         classesConteiner
     );
+    vault.addItem(uc.valueOf());
 });
+
+// востановитель состояния (локальное хранилище).
+const vault = new LocalStorager('main_vault', UnitClass, classesConteiner);
+
 
 function randomColor() {
     const low = 35, top = 235;
@@ -39,3 +43,10 @@ function randomColor() {
     b =  low + Math.floor(Math.random() * (top - low));
     return `rgb(${r}, ${g}, ${b})`;
 }
+
+classesConteiner.addEventListener('click', function (event) {
+    var mytar = event.target.closest('.class-conteiner');
+    if (mytar) {
+        console.log(mytar);
+    } 
+});
