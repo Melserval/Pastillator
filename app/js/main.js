@@ -9,11 +9,15 @@ const classControllPanel = {
     inputApplyButton: document.querySelector('#class-controll [type="button"]')
 };
 
+// контейнер отображения диаграмм сословий.
 const classesConteiner = document.getElementById('classes-conteiner');
+
+// контейнер отображения текстовой информации по соословиям.
+const classesTextInfo = document.getElementById("classes-textinfo");
 
 // элементы панели информации классов
 const classInfoPanelSpanCollection = document.getElementById('class-info')
-                                        .getElementsByClassName('info');
+                                     .getElementsByClassName('info');
 const classInfoPanel = {
     conteiner: document.getElementById('class-info'),
     spanClassCount: classInfoPanelSpanCollection[0],
@@ -21,18 +25,41 @@ const classInfoPanel = {
     spanUnitCount: classInfoPanelSpanCollection[2]
 };
 
-classControllPanel.inputApplyButton.addEventListener('click', function (event) {
-    let uc = new UnitClass(
-        classControllPanel.inputClassName.value,
-        classControllPanel.inputPastilCount.value,
-        classControllPanel.inputUnitCount.value,
-        classesConteiner
-    );
-    vault.addItem(uc.valueOf());
+// востановитель состояния (локальное хранилище).
+const vault = new LocalStorager('main_vault');
+
+UnitClass.bindRender(RenderTextInfo, (view, data) => {
+    view.insertInto(classesTextInfo.querySelector("table"));
+    view.numberOfUnits = data.numberOfUnits;
+    view.numberOfPastils = data.pastilsForUnit;
+    view.nameOfClass = data.nameOfClass;
 });
 
-// востановитель состояния (локальное хранилище).
-const vault = new LocalStorager('main_vault', UnitClass, classesConteiner);
+UnitClass.bindRender(RenderDiagramInfo, (view, data) => {
+    view.insertInto(classesConteiner);
+    view.nameOfClass = data.nameOfClass;
+    view.numberOfUnits = data.numberOfUnits;
+    view.numberOfPastils = data.pastilsForUnit;
+    view.numberOfTotalPastils = data.pastilsForClass;
+    view.percentOfUnits = 25; // TODO: заглушка
+    view.percentOfPastils = 50; // TODO: заглушка
+});
+
+classControllPanel.inputApplyButton.addEventListener('click', function (event) {
+    const unit = new UnitClass(
+        classControllPanel.inputClassName.value,
+        classControllPanel.inputPastilCount.value,
+        classControllPanel.inputUnitCount.value
+    );
+    // TODO: Надо убрать это дерьмо. Должно сохранятся при закрытии программы. Но не в процессе работы!
+    vault.addItem(unit.valueOf());
+});
+
+// воссоздание коллекции объектов.
+vault.getElements().forEach(uc => {
+    new UnitClass(uc.name, uc.pastils, uc.units, uc.id);
+});
+
 
 
 function randomColor() {

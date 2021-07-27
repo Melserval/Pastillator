@@ -4,7 +4,8 @@
 	<meta charset="UTF-8">
 	<title>Pastellator</title>
 	<link rel="stylesheet" href="css/master.css">
-	<script src="js/RenderUnitClass.js" defer></script>
+	<script src="js/RenderTextinfo.js" defer></script>
+	<script src="js/RenderDiagramInfo.js" defer></script>
 	<script src="js/UnitClass.js" defer></script>
 	<script src="js/LocalStorager.js" defer></script>
 	<script src="js/main.js" defer></script>
@@ -25,6 +26,17 @@
 			<span class="title">Существ: </span><span class="info">0</span>
 		</div>
 	</header>
+
+	<div id="classes-textinfo">
+		<table>
+			<tr>
+				<th>Существа</th>
+				<th>Пастилки</th>
+				<th>Название</th>
+			</tr>
+			<!-- Сюда вставляются строки сгенерированные JS -->
+		</table>
+	</div>
 
 	<div id="classes-conteiner">
 	<!-- Сюда вставляются классы сгенерированные JS -->
