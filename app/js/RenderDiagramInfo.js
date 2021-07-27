@@ -9,8 +9,8 @@
  * @property {number} numberOfUnits Количество существ.
  * @property {number} numberOfPastils Количество пастилок на 1 существо.
  * @property {number} numberOfTotalPastils Количество пастилок на класс.
- * @property {number} persentOfUnits Процент существ в классе от всех существ.
- * @property {number} persentOfPastils Процент пастилок на класс от всех пастилок.
+ * @property {number} percentOfUnits Процент существ в классе от всех существ.
+ * @property {number} percentOfPastils Процент пастилок на класс от всех пастилок.
  * @method insertInto размещает элемент в переданном аргументе-родителе.
  */
 class RenderDiagramInfo {
@@ -20,7 +20,6 @@ class RenderDiagramInfo {
 		// главный контейнер для всех элементов представления.
 		this._elementNode = document.createElement('div');
 		this._elementNode.setAttribute('class', 'class-conteiner');
-		this._elementNode.onmousedown = this.drag; // TODO: позже делегировать общему методу.
 
 		// элемент выполняющий роль диаграммы.
 		this._diagramConteiner = document.createElement('div');
@@ -62,27 +61,27 @@ class RenderDiagramInfo {
 	}
 
 	set numberOfUnits(value) {
-		this._infoAllUnits = value;
+		this._infoAllUnits.textContent = value;
 	}
 
 	set numberOfPastils(value) {
-		this._infoPastelsForUnit = value;
+		this._infoPastelsForUnit.textContent = value;
 	}
 
 	set numberOfTotalPastils(value) {
-		this._infoAllPastels = value;
+		this._infoAllPastels.textContent = value;
 	}
 
-	set persentOfUnits(value) {
+	set percentOfUnits(value) {
 		// вычисляет и устанавливает ширину диаграммы количества существ.
-		let width = this._elementNode.parentElement.clientWidth / 100 * persent.toFixed(2) - 2;
+		let width = this._elementNode.parentElement.clientWidth / 100 * value.toFixed(2) - 2;
 		this._diagramConteiner.style.width = width + 'px';
 	}
 
-	set persentOfPastils(value) {
+	set percentOfPastils(value) {
 		// вычисляет и задает высоту диаграммы количества пастилок.
 		let height = this._elementNode.clientHeight - this._infoConteiner.offsetHeight;
-		let show = height / 100 * count;
+		let show = height / 100 * value;
 		this._diagramConteiner.style.height = show + 'px';
 		this._diagramConteiner.style.marginTop = height - show + 'px';
 	}
@@ -102,13 +101,5 @@ class RenderDiagramInfo {
 		parentNode.append(comment);
 		parentNode.append(this._elementNode);
 		return this._elementNode;
-	};
-
-	// Экспериментальный функционал для перетаскивания.
-	drag(event) {
-		console.log(this);
-		console.log(event);
-		document.body.appendChild(this);
-		this.style.position = 'absolute';
 	};
 }
