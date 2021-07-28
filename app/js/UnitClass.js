@@ -30,12 +30,14 @@ class UnitClass {
 		this._pastils = Number(pastilsForUnit);
 	    this._numberOfUnints = Number(unitCount);
 	    this._views = [];
+
 	    // создание вьюшек и установка стартовых значений.
-	    this._renders.forEach(render => {
-			const view = new render.view();
-			render.helper(view, this);
-			this._views.push(view);
-		});
+	    // при пропуске создания view, в _views должен быть 
+	    // вставлен заполнитель (null), для совпадений индексов
+	    // массивов _views и prototype._renders !!!
+	    this._renders.forEach(render => this._views.push(new render.view()));
+
+	    this._renderUpdate();
 	}
 	
 	get pastilsForClass() {
@@ -52,6 +54,14 @@ class UnitClass {
 
 	get nameOfClass() {
 		return this._name;
+	}
+
+	get percentOfUnits() {
+		return 25; //HACK: заглушка значения.
+	}
+
+	get percentOfPastils() {
+		return 50.0; //HACK: заглушка значения.
 	}
 
 	valueOf() {
@@ -77,10 +87,26 @@ class UnitClass {
 	disPastils(count) {
 		this.pastils -= count;
 	}
+
+	_renderUpdate() {
+		this._views.forEach((view, index) => {
+			if (view) // может быть null (обеспечение совпадений индексов)!
+				this._renders[index].helper(view, this);
+		});
+	}
 }
 
 UnitClass.prototype._renders = [];
 
+/**
+ * Назначает конструктор для view-элемента-объекта.
+ * и функцию для работы с экземпляром созданного view.
+ * 
+ * @param  {Class} viewConstructor конструктор объектов view.
+ * @param  {Function} callbackHelper  функция для работы с экземпяром view.
+ *                                    арг 1: экземпляр view.
+ * 
+ */
 UnitClass.bindRender = function(viewConstructor, callbackHelper) {
 	this.prototype._renders.push({view: viewConstructor, helper: callbackHelper});
 };
