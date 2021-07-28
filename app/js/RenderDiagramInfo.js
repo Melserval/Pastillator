@@ -74,8 +74,7 @@ class RenderDiagramInfo {
 
 	set percentOfUnits(value) {
 		// вычисляет и устанавливает ширину диаграммы количества существ.
-		let width = this._elementNode.parentElement.clientWidth / 100 * value.toFixed(2) - 2;
-		this._diagramConteiner.style.width = width + 'px';
+		this._elementNode.style.width = (value.toFixed(2)) + "%";
 	}
 
 	set percentOfPastils(value) {

@@ -42,8 +42,8 @@ UnitClass.bindRender(RenderDiagramInfo, (view, model) => {
     view.numberOfUnits        = model.numberOfUnits;
     view.numberOfPastils      = model.pastilsForUnit;
     view.numberOfTotalPastils = model.pastilsForClass;
-    view.percentOfUnits       = model.percentOfUnits; // TODO: заглушка
-    view.percentOfPastils     = model.percentOfPastils; // TODO: заглушка
+    view.percentOfUnits       = model.percentOfUnits;
+    view.percentOfPastils     = model.percentOfPastils;
 });
 
 classControllPanel.inputApplyButton.addEventListener('click', function (event) {
