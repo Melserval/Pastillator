@@ -36,7 +36,7 @@ LocalStorager.prototype.getElements = function() {
 	});
 };
 
-LocalStorager.prototype.clearInfoset = function() {
+LocalStorager.prototype.clear = function() {
 	this.unitsInfoSet.forEach(unit_id => window.localStorage.removeItem(unit_id));
 	this.unitsInfoSet = [];
 	window.localStorage.removeItem(this.setName);

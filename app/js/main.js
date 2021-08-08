@@ -12,31 +12,30 @@ const classControllPanel = {
 // контейнер отображения диаграмм сословий.
 const classesConteiner = document.getElementById('classes-conteiner');
 
-// контейнер отображения текстовой информации по соословиям.
-const classesTextInfo = document.getElementById("classes-textinfo");
+// контейнер отображения текстовой информации - по сословиям.
+const textInfo_unitClass = document.getElementById("unit-class-info");
 
-// элементы панели информации классов
-const classInfoPanelSpanCollection = document.getElementById('class-info')
-                                        .getElementsByClassName('info');
+// контейнер отображения текстовой информации - общие данные.
+const textInfo_allClasses = document.getElementById('classes-info');
 const classInfoPanel = {
-    conteiner: document.getElementById('class-info'),
-    spanClassCount: classInfoPanelSpanCollection[0],
-    spanPastelCount: classInfoPanelSpanCollection[1],
-    spanUnitCount: classInfoPanelSpanCollection[2]
+    conteiner: textInfo_allClasses,
+    unitsCount: textInfo_allClasses.rows[1].cells[0],
+    pastilsCount: textInfo_allClasses.rows[1].cells[1],
+    classesCount: textInfo_allClasses.rows[1].cells[2]
 };
 
-// востановитель состояния (локальное хранилище).
-const vault = new LocalStorager('main_vault');
 
-
-// настройка view хтмл элементов.
-UnitClass.bindRender(RenderTextInfo, (view, model) => {
-    view.insertInto(classesTextInfo.querySelector("table"));
+//--- установка и настройка view хтмл элементов. ---
+//
+// показ текстовых данных в общей таблице.
+UnitClassHub.bindRender(RenderTextInfo, (view, model) => {
+    view.insertInto(textInfo_unitClass);
     view.numberOfUnits   = model.numberOfUnits;
     view.numberOfPastils = model.pastilsForUnit;
     view.nameOfClass     = model.nameOfClass;
 });
-UnitClass.bindRender(RenderDiagramInfo, (view, model) => {
+// показ диаграм в главном блоке.
+UnitClassHub.bindRender(RenderDiagramInfo, (view, model) => {
     view.insertInto(classesConteiner);
     view.nameOfClass          = model.nameOfClass;
     view.numberOfUnits        = model.numberOfUnits;
@@ -46,21 +45,29 @@ UnitClass.bindRender(RenderDiagramInfo, (view, model) => {
     view.percentOfPastils     = model.percentOfPastils;
 });
 
+
+// востановитель состояния (локальное хранилище).
+const vault = new LocalStorager('main_vault');
+
+// основной набор данных.
+const unitSetMain = new UnitClassSet("основной");
+
+// обработка нажатия кнопки создания класса и сосздание оного....
 classControllPanel.inputApplyButton.addEventListener('click', function (event) {
-    const unit = new UnitClass(
-        classControllPanel.inputClassName.value,
-        classControllPanel.inputPastilCount.value,
-        classControllPanel.inputUnitCount.value
-    );
-    // TODO: Надо убрать это дерьмо. Должно сохранятся при закрытии программы. Но не в процессе работы!
-    vault.addItem(unit.valueOf());
-});
+    const name = classControllPanel.inputClassName.value;
+    const pastils = Number(classControllPanel.inputPastilCount.value);
+    const units = Number(classControllPanel.inputUnitCount.value);
+    try {
+        if (isNaN(pastils) || isNaN(units)) throw new Error("Не числовое значение");
+        if (name.trim().length == 0) throw new Error("Не указано имя сословия");
+        const unitObj = new UnitClassHub(name, pastils, units);
+        unitSetMain.add(unitObj);
+        unitObj.render();
+    } catch(err) {
+        alert("Неверные данные сословия!" + err.message);
+    }
 
-// воссоздание коллекции объектов.
-vault.getElements().forEach(uc => {
-    new UnitClass(uc.name, uc.pastils, uc.units, uc.id);
 });
-
 
 
 function randomColor() {
