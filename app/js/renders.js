@@ -4,8 +4,8 @@
  * DOM элемент отображающий текстовую информацию.
  * 
  *
- * @property {number} numberOfUnits Количество существ.
- * @property {number} numberOfPastils Количество пастилок на 1 существо.
+ * @property {string} numberOfUnits Количество существ.
+ * @property {string} numberOfPastils Количество пастилок на 1 существо.
  * @property {string} nameOfClass Название класса существ.
  * @method insertInto размещает элемент в переданном аргументе-родителе.
  */
@@ -118,7 +118,7 @@ class RenderDiagramInfo {
 
     set percentOfUnits(value) {
         // вычисляет и устанавливает ширину диаграммы количества существ.
-        this._elementNode.style.width = (value.toFixed(2)) + "%";
+        this._elementNode.style.width = value + "%";
     }
 
     set percentOfPastils(value) {
@@ -141,8 +141,7 @@ class RenderDiagramInfo {
      */
     insertInto(parentNode) {
         let comment = document.createComment("Сгенерирован " + Date());
-        parentNode.append(comment);
-        parentNode.append(this._elementNode);
+        parentNode.append(comment, this._elementNode);
         return this._elementNode;
     };
 }

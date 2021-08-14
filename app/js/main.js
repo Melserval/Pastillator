@@ -10,10 +10,10 @@ const classControllPanel = {
 };
 
 // контейнер отображения диаграмм сословий.
-const classesConteiner = document.getElementById('classes-conteiner');
+const diagramInfoConteiner = document.getElementById('classes-conteiner');
 
 // контейнер отображения текстовой информации - по сословиям.
-const textInfo_unitClass = document.getElementById("unit-class-info");
+const textInfoConteiner = document.getElementById("unit-class-info");
 
 // контейнер отображения текстовой информации - общие данные.
 const textInfo_allClasses = document.getElementById('classes-info');
@@ -28,15 +28,13 @@ const classInfoPanel = {
 //--- установка и настройка view хтмл элементов. ---
 //
 // показ текстовых данных в общей таблице.
-UnitClassHub.bindRender(RenderTextInfo, (view, model) => {
-    view.insertInto(textInfo_unitClass);
-    view.numberOfUnits   = model.numberOfUnits;
-    view.numberOfPastils = model.pastilsForUnit;
+UnitClassHub.bindRender(textInfoConteiner, RenderTextInfo, (view, model) => {
+    view.numberOfUnits   = `${model.numberOfUnits} (${model.percentOfUnits}%)` ;
+    view.numberOfPastils = `${model.pastilsForUnit} (${model.percentOfPastils}%)`;
     view.nameOfClass     = model.nameOfClass;
 });
 // показ диаграм в главном блоке.
-UnitClassHub.bindRender(RenderDiagramInfo, (view, model) => {
-    view.insertInto(classesConteiner);
+UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) => {
     view.nameOfClass          = model.nameOfClass;
     view.numberOfUnits        = model.numberOfUnits;
     view.numberOfPastils      = model.pastilsForUnit;
@@ -45,28 +43,33 @@ UnitClassHub.bindRender(RenderDiagramInfo, (view, model) => {
     view.percentOfPastils     = model.percentOfPastils;
 });
 
+// базовый набор данных.
+unitData.load();
 
 // востановитель состояния (локальное хранилище).
 const vault = new LocalStorager('main_vault');
 
-// основной набор данных.
-const unitSetMain = new UnitClassSet("основной");
-
 // обработка нажатия кнопки создания класса и сосздание оного....
-classControllPanel.inputApplyButton.addEventListener('click', function (event) {
+classControllPanel.inputApplyButton.addEventListener(
+'click', 
+function (event) {
     const name = classControllPanel.inputClassName.value;
     const pastils = Number(classControllPanel.inputPastilCount.value);
     const units = Number(classControllPanel.inputUnitCount.value);
     try {
-        if (isNaN(pastils) || isNaN(units)) throw new Error("Не числовое значение");
-        if (name.trim().length == 0) throw new Error("Не указано имя сословия");
+        if (isNaN(pastils) || isNaN(units)) {
+            throw new Error("Не числовое значение");
+        }
+        if (name.trim().length < 1) {
+            throw new Error("Не указано имя сословия");
+        }
         const unitObj = new UnitClassHub(name, pastils, units);
-        unitSetMain.add(unitObj);
+        unitData.activeSet.add(unitObj);
         unitObj.render();
     } catch(err) {
-        alert("Неверные данные сословия!" + err.message);
+        console.error(err);
+        alert("Неверные данные сословия!");
     }
-
 });
 
 
@@ -79,7 +82,7 @@ function randomColor() {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-classesConteiner.addEventListener('click', function (event) {
+diagramInfoConteiner.addEventListener('click', function (event) {
     var mytar = event.target.closest('.class-conteiner');
     if (mytar) {
         console.log(mytar);
