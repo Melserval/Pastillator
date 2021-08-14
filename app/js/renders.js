@@ -13,18 +13,32 @@ class RenderTextInfo {
     constructor() {
         this._tr = document.createElement("tr");
         this._th_units = document.createElement("td");
+        this._spn_units_num = document.createElement("span");
+        this._spn_units_prc = document.createElement("span");
         this._th_pastils = document.createElement("td");
+        this._spn_pastils_num = document.createElement("span");
+        this._spn_pastils_prc = document.createElement("span");
         this._th_className = document.createElement("td");
 
+        this._th_units.append(this._spn_units_num, this._spn_units_prc);
+        this._th_pastils.append(this._spn_pastils_num, this._spn_pastils_prc);
         this._tr.append(this._th_units, this._th_pastils, this._th_className);
     }
 
     set numberOfUnits(value) {
-        this._th_units.textContent = value;
+        this._spn_units_num.textContent = value;
+    }
+
+    set percentOfUnits(value) {
+        this._spn_units_prc.textContent = value;
     }
 
     set numberOfPastils(value) {
-        this._th_pastils.textContent = value;
+        this._spn_pastils_num.textContent = value;
+    }
+
+    set percentOfPastils(value) {
+        this._spn_pastils_prc.textContent = value;
     }
 
     set nameOfClass(value) {
@@ -60,7 +74,6 @@ class RenderTextInfo {
 class RenderDiagramInfo {
 
     constructor() {
-
         // главный контейнер для всех элементов представления.
         this._elementNode = document.createElement('div');
         this._elementNode.setAttribute('class', 'class-conteiner');

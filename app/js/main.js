@@ -29,9 +29,11 @@ const classInfoPanel = {
 //
 // показ текстовых данных в общей таблице.
 UnitClassHub.bindRender(textInfoConteiner, RenderTextInfo, (view, model) => {
-    view.numberOfUnits   = `${model.numberOfUnits} (${model.percentOfUnits}%)` ;
-    view.numberOfPastils = `${model.pastilsForUnit} (${model.percentOfPastils}%)`;
-    view.nameOfClass     = model.nameOfClass;
+    view.numberOfUnits    = model.numberOfUnits;
+    view.percentOfUnits   = model.percentOfUnits;
+    view.numberOfPastils  = model.pastilsForUnit;
+    view.percentOfPastils = model.percentOfPastils
+    view.nameOfClass      = model.nameOfClass;
 });
 // показ диаграм в главном блоке.
 UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) => {
