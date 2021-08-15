@@ -11,14 +11,14 @@
  */
 class RenderTextInfo {
     constructor() {
-        this._tr = document.createElement("tr");
-        this._th_units = document.createElement("td");
-        this._spn_units_num = document.createElement("span");
-        this._spn_units_prc = document.createElement("span");
-        this._th_pastils = document.createElement("td");
+        this._tr              = document.createElement("tr");
+        this._th_units        = document.createElement("td");
+        this._spn_units_num   = document.createElement("span");
+        this._spn_units_prc   = document.createElement("span");
+        this._th_pastils      = document.createElement("td");
         this._spn_pastils_num = document.createElement("span");
         this._spn_pastils_prc = document.createElement("span");
-        this._th_className = document.createElement("td");
+        this._th_className    = document.createElement("td");
 
         this._th_units.append(this._spn_units_num, this._spn_units_prc);
         this._th_pastils.append(this._spn_pastils_num, this._spn_pastils_prc);
@@ -59,9 +59,9 @@ class RenderTextInfo {
 }
 
 /**
- * DOM элемент отображающий графическую информацию,
- * в виде диаграммы, где высота - количество пастилок на класс,
- * а ширина - количество существ в этом классе.
+ * DOM элемент отображающий графическую информацию - диаграмму.
+ * ширина - процентное количество существ в классе.
+ * высота - процентное количество пастилок на класс / на существо.
  *
  * @property {string} nameOfClass Название класса существ.
  * @property {number} numberOfUnits Количество существ.

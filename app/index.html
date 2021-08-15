@@ -6,7 +6,6 @@
 	<link rel="stylesheet" href="css/master.css">
 	<script src="js/renders.js" defer></script>
 	<script src="js/units.js" defer></script>
-	<script src="js/storage.js" defer></script>
 	<script src="js/main.js" defer></script>
 </head>
 <body>
@@ -19,11 +18,25 @@
 			<input type="button" value="Применить">
 		</div>
 	</header>
-
+	<div id="sets-panel">
+		<form action="">
+			<div><input type="text"><input type="button" value="ok"></div>
+		</form>
+		<ul>
+			<li>Hello</li>
+		</ul>
+	</div>
 	<div id="classes-textinfo">
 		<table>
 			<!-- Показ общей информации -->
+			<caption>данные набора</caption>
 			<tbody id="classes-info" >
+				<tr>
+					<th colspan="3">Набор</th>
+				</tr>
+				<tr>
+					<td colspan="3">.</td>
+				</tr>
 				<tr>
 					<th>Существ</th>
 					<th>Пастилок</th>
@@ -35,7 +48,10 @@
 					<td>0</td>
 				</tr>
 			</tbody>
+		</table>
+		<table>
 			<!-- по каждому сословию. -->
+			<caption>данные классов</caption>
 			<tbody id="unit-class-info">
 				<tr>
 					<th>Существа</th>

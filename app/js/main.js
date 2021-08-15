@@ -16,18 +16,19 @@ const diagramInfoConteiner = document.getElementById('classes-conteiner');
 const textInfoConteiner = document.getElementById("unit-class-info");
 
 // контейнер отображения текстовой информации - общие данные.
-const textInfo_allClasses = document.getElementById('classes-info');
-const classInfoPanel = {
-    conteiner: textInfo_allClasses,
-    unitsCount: textInfo_allClasses.rows[1].cells[0],
-    pastilsCount: textInfo_allClasses.rows[1].cells[1],
-    classesCount: textInfo_allClasses.rows[1].cells[2]
-};
+const tbodyClassesInfo = document.getElementById("classes-info");
 
 
 //--- установка и настройка view хтмл элементов. ---
 //
-// показ текстовых данных в общей таблице.
+// показ общих данных в таблице
+unitData.bindView(classSet => {
+    tbodyClassesInfo.rows[1].cells[0].textContent = classSet.setName; // название набора
+    tbodyClassesInfo.rows[3].cells[0].textContent = classSet.allUnits; // общее число существ
+    tbodyClassesInfo.rows[3].cells[1].textContent = classSet.allPastils; // общее число пастилок на всех.
+    tbodyClassesInfo.rows[3].cells[2].textContent = classSet.allClasses; // число классов в наборе.
+});
+// показ текстовых данных в таблице.
 UnitClassHub.bindRender(textInfoConteiner, RenderTextInfo, (view, model) => {
     view.numberOfUnits    = model.numberOfUnits;
     view.percentOfUnits   = model.percentOfUnits;
@@ -47,9 +48,6 @@ UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) =
 
 // базовый набор данных.
 unitData.load();
-
-// востановитель состояния (локальное хранилище).
-const vault = new LocalStorager('main_vault');
 
 // обработка нажатия кнопки создания класса и сосздание оного....
 classControllPanel.inputApplyButton.addEventListener(
@@ -73,7 +71,6 @@ function (event) {
         alert("Неверные данные сословия!");
     }
 });
-
 
 function randomColor() {
     const low = 35, top = 235;

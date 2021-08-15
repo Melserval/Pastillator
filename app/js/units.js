@@ -6,6 +6,7 @@ const unitData = new class UnitData {
 		this.activeSetName = "";
 		this._activeSet = null;
 		this.unitClassesSet = [];
+		this._viewsHelper = [];
 	}
 
 	toJSON() {
@@ -24,6 +25,7 @@ const unitData = new class UnitData {
 				this._activeSet = set;
 			}
 		}
+		this.updateRender();
 	}
 
 	get activeSet() {
@@ -34,6 +36,7 @@ const unitData = new class UnitData {
 		this.activeSetName = name;
 		this._activeSet = new UnitClassSet(name);
 		this.unitClassesSet.push(this._activeSet);
+		this.updateRender();
 	}
 
 	listNames() {
@@ -56,6 +59,14 @@ const unitData = new class UnitData {
 	clear() {
 		window.localStorage.removeItem("UNIT_DATA");
 	}
+
+	bindView(callbackFunc) {
+		this._viewsHelper.push(callbackFunc);
+	}
+
+	updateRender() {
+		this._viewsHelper.forEach(func => func(this._activeSet));
+	}
 };
 
 // содержит набор связанных сущностей, для хранения различных 
@@ -68,13 +79,18 @@ class UnitClassSet {
 	 */
 	constructor(setName) {
 		this.setName = setName;
-		// всего пастилок в сословиях.
+		// общее количество пастилок для всех существ во всех сословиях.
 		this.allPastils = 0;
-		// пастилки распределенные на 1 унита, их общая сумма.
+		// общее количество пастилок выделенных на 1 существо из каждого сословия.
 		this.pastilsForUnits = 0;
 		this.allUnits = 0;
 		this._units = [];
 	}
+
+	get allClasses() {
+		return this._units.length;
+	}
+
 
 	toJSON() {
 		return `{
@@ -103,13 +119,13 @@ class UnitClassSet {
 	renderItems() {
 		this._units.forEach(item => item.render());
 	}
-}
 
-UnitClassSet.fromJSON = function(json) {
-	const unit = new UnitClassSet(json['name']);
-	unit.add(...json["units"].map(e => UnitClassHub.fromJSON(e)));
-	return unit;
-};
+	static fromJSON(json) {
+		const unit = new this(json['name']);
+		unit.add(...json["units"].map(e => UnitClassHub.fromJSON(e)));
+		return unit;
+	};
+}
 
 
 /**
@@ -170,8 +186,7 @@ class UnitClassHub {
 	}
 
 	get percentOfUnits() {
-		if (this._numberOfUnints < 1) return 0; 
-				// округление до 2-х знаков после запятой. 
+		if (this._numberOfUnints < 1) return 0;
 		return Math.floor((this._numberOfUnints / (this._classset.allUnits / 100)) * 100) / 100;
 	}
 
@@ -179,11 +194,9 @@ class UnitClassHub {
 		if (this._pastils < 1) return 0;	
 		// переключение процентов
 		switch (2) {
-			// процент пастилок от всего их количества.
-			case 1: 
-				return Math.floor((this.pastilsForClass / (this._classset.allPastils / 100)) * 100) / 100;
-			// процент пастилок выделенных на 1 унита.
-			case 2:
+			case 1: // процент пастилок от всего их количества.
+				return Math.floor((this.pastilsForClass / (this._classset.allPastils / 100)) * 100) / 100;	
+			case 2: // процент пастилок выделенных на 1 унита.
 				return Math.floor((this.pastilsForUnit / (this._classset.pastilsForUnits / 100)) * 100) / 100;
 			default:
 				return 0;
@@ -211,7 +224,7 @@ class UnitClassHub {
 	updateRender() {
 		this._views.forEach((view, index) => {
 			if (view) // возможен заполнитель null (обеспечение совпадений индексов)!
-				this._renders[index].helper(view, this);
+				this.constructor._renders[index].helper(view, this);
 		});
 	}
 
@@ -219,48 +232,44 @@ class UnitClassHub {
 		return `${this._name} ${this._pastils} ${this._numberOfUnints}`;
 	}
 
-	/**
-	 * Создает отображения для данных объекта.
-	 */
 	render() {
 		// создание вьюшек и установка стартовых значений.
 	    // при пропуске создания view, в _views должен быть 
 	    // вставлен заполнитель (null), для совпадений индексов
 	    // массивов _views и prototype._renders !!!
-	    this._renders.forEach(render => {
+	    this.constructor._renders.forEach(render => {
 	    	const view = new render.view();
 	    	view.insertInto(render.node);
 	    	this._views.push(view);
 	    });
 	    this.updateRender();
 	}
+
+	// установка ссылки на агрегирующий объект типа UnitClassSet.
+	bindSet(classset) {
+		this._classset = classset;
+	};
+
+	// конструкторы DOM элементов отображения данных.
+	static _renders = [];
+
+	static fromJSON(json) {
+		const {name, pastils, units, id} = json;
+		return new this(name, pastils, units, id);
+	}
+
+	/**
+	 * Назначает конструктор для view-элемента-объекта.
+	 * и функцию, в которой происходит процесс работы с 
+	 * экземпляром созданного view.
+	 *
+	 * @param {HTMLElement} nodeElement хтмл элемент контейнер.
+	 * @param  {Class} viewConstructor конструктор объектов view.
+	 * @param  {Function} callbackHelper  функция для работы с экземпяром view.
+	 *                                    арг 1: экземпляр view.
+	 *                                    arg 2: экземпляр источник данных.
+	 */
+	static bindRender(nodeElement, viewConstructor, callbackHelper) {
+		this._renders.push({node: nodeElement, view: viewConstructor, helper: callbackHelper});
+	};
 }
-
-// конструкторы DOM элементов отображения данных.
-UnitClassHub.prototype._renders = [];
-
-/**
- * Назначает конструктор для view-элемента-объекта.
- * и функцию, в которой происходит процесс работы с 
- * экземпляром созданного view.
- * 
- * @param  {Class} viewConstructor конструктор объектов view.
- * @param  {Function} callbackHelper  функция для работы с экземпяром view.
- *                                    арг 1: экземпляр view.
- *                                    arg 2: экземпляр источник данных.
- * 
- */
-UnitClassHub.bindRender = function(nodeElement, viewConstructor, callbackHelper) {
-	this.prototype._renders.push({node: nodeElement, view: viewConstructor, helper: callbackHelper});
-};
-
-UnitClassHub.prototype.bindSet = function(classset) {
-	this._classset = classset;
-};
-
-UnitClassHub.fromJSON = function(json) {
-	const {name, pastils, units, id} = json;
-	const uch = new UnitClassHub(name, pastils, units, id);
-	return uch;
-};
-
