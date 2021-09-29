@@ -1,8 +1,7 @@
 'use strict';
 
 /** 
- * DOM элемент отображающий текстовую информацию.
- * 
+ * DOM элемент отображающий текстовую  информацию.
  *
  * @property {string} numberOfUnits Количество существ.
  * @property {string} numberOfPastils Количество пастилок на 1 существо.
@@ -141,11 +140,6 @@ class RenderDiagramInfo {
         this._diagramConteiner.style.height = show + 'px';
         this._diagramConteiner.style.marginTop = height - show + 'px';
     }
-
-    /**
-     * Помещает элемент внуть указанного родителя.
-     * @param {HTMLElement} parentNode корневой элемент.
-     */
     
     /**
      * Помещает DOM элемент RenderDiagramInfo в указанный узел.

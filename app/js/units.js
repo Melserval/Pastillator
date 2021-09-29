@@ -10,10 +10,10 @@ const unitData = new class UnitData {
 	}
 
 	toJSON() {
-		return `{
-			"active": "${this.activeSetName}",
-			"sets": ${this.unitClassesSet.reduce((s, i, n, a) =>  s + i.toJSON() + (n == a.length - 1 ? "": ","), "[")}]
-		}`
+		return {
+			"active": this.activeSetName,
+			"sets": this.unitClassesSet
+		}
 	}
 
 	fromJSON(json) {
@@ -34,8 +34,7 @@ const unitData = new class UnitData {
 
 	newSet(name) {
 		this.activeSetName = name;
-		this._activeSet = new UnitClassSet(name);
-		this.unitClassesSet.push(this._activeSet);
+		this.unitClassesSet.push(this._activeSet = new UnitClassSet(name));
 		this.updateRender();
 	}
 
@@ -44,7 +43,7 @@ const unitData = new class UnitData {
 	}
 
 	save() {
-		window.localStorage.setItem("UNIT_DATA", this.toJSON());
+		window.localStorage.setItem("UNIT_DATA", JSON.stringify(this));
 	}
 
 	load() {
@@ -91,25 +90,18 @@ class UnitClassSet {
 		return this._units.length;
 	}
 
-
-	toJSON() {
-		return `{
-			"name": "${this.setName}",
-			"units": ${this._units.reduce((s, i, n, a) =>  s + i.toJSON() + (n == a.length - 1 ? "": ","), "[")}]
-		}`
-	}
-
 	add(...unit_class) {
 		unit_class.forEach((element) => {
-			element.bindSet(this);
+			element.bindSet(this); // TODO: Избавиться от этого связывания. Это ОЧЕНЬ плохо.
 			this.pastilsForUnits += element.pastilsForUnit;
 			this.allPastils += element.pastilsForClass;
 			this.allUnits += element.numberOfUnits;
 			this._units.push(element);
 		});
-		this._units.forEach(element => element.updateRender());
+		for (let element of this._units) {
+			element.updateRender();
+		}
 	}
-
 	// псевдо события
 	changePastils(count) {
 		this.allPastils = this.allPastils + count;
@@ -118,6 +110,13 @@ class UnitClassSet {
 
 	renderItems() {
 		this._units.forEach(item => item.render());
+	}
+
+	toJSON() {
+		return {
+			"name": this.setName,
+			"units": this._units
+		}
 	}
 
 	static fromJSON(json) {
@@ -145,7 +144,6 @@ class UnitClassSet {
  */
 class UnitClassHub {
 	/**
-	 * объект опций.
 	 * @param  {string} name     название класса существ.
 	 * @param  {number} pastils  количество пастилок на каждое существо.
 	 * @param  {number} units    количество существ в классе.
@@ -157,18 +155,9 @@ class UnitClassHub {
 		this._pastils = Number(pastils);
 	    this._numberOfUnints = Number(units);
 	    this._views = [];
-	    this._classset;
+	    this._classset = null;
 	}
 
-	toJSON() {
-		return `{
-			"id": ${this.id},
-			"name": "${this._name}",
-			"pastils": ${this._pastils},
-			"units": ${this._numberOfUnints}
-		}`
-	}
-	
 	get pastilsForClass() {
 		return this._pastils * this._numberOfUnints;
 	}
@@ -190,7 +179,7 @@ class UnitClassHub {
 		return Math.floor((this._numberOfUnints / (this._classset.allUnits / 100)) * 100) / 100;
 	}
 
-	get percentOfPastils() {	
+	get percentOfPastils() {
 		if (this._pastils < 1) return 0;	
 		// переключение процентов
 		switch (2) {
@@ -228,9 +217,6 @@ class UnitClassHub {
 		});
 	}
 
-	toString() {
-		return `${this._name} ${this._pastils} ${this._numberOfUnints}`;
-	}
 
 	render() {
 		// создание вьюшек и установка стартовых значений.
@@ -253,13 +239,25 @@ class UnitClassHub {
 	// конструкторы DOM элементов отображения данных.
 	static _renders = [];
 
-	static fromJSON(json) {
-		const {name, pastils, units, id} = json;
+	toString() {
+		return `${this._name} ${this._pastils} ${this._numberOfUnints}`;
+	}
+
+	toJSON() {
+		return {
+			"id": this.id,
+			"name": this._name,
+			"pastils": this._pastils,
+			"units": this._numberOfUnints
+		}
+	}
+
+	static fromJSON({name, pastils, units, id}) {
 		return new this(name, pastils, units, id);
 	}
 
 	/**
-	 * Назначает конструктор для view-элемента-объекта.
+	 * Назначает конструктор для view-элемента-объекта
 	 * и функцию, в которой происходит процесс работы с 
 	 * экземпляром созданного view.
 	 *
