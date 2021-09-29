@@ -1,0 +1,13 @@
+// Элементы управления созданием новых классов.
+
+#class-controll {
+	display: inline-block;
+	border: 1px solid #74a90c;
+	border-radius: 3px;
+	background-color: #E6F2CC;
+	padding: 10px;
+	
+	> div {
+		display: inline-block;
+	}
+}

@@ -10,38 +10,42 @@
 </head>
 <body>
 	<header>
-		<div id="class-controll">
-			<span id="class-operation-info">Новый класс: Создание</span>
-			<label for=""><span>Название класса:</span><input type="text" size="20" value="Новый"></label>
-			<label for=""><span>Пастилок каждому:</span><input type="text" size="6" value="0"></label>
-			<label for=""><span>Существ в классе:</span><input type="text" size="6" value="0"></label>
-			<input type="button" value="Применить">
-		</div>
-	</header>
-	<div id="sets-panel">
-		<form action="">
+		<!-- Создание нового набора классов или выбор существуюшего -->
+		<div id="class-set-controll">
 			<div>
-				<div class="left-conteiner">
-					<div>
-						<input type="text" placeholder="название набора">
-					</div>
-					<div>
-						<textarea name="" id="" placeholder="заметка"></textarea>
-					</div>
-				</div>
-				<div class="right-conteiner">
-					<button type="submit">Ok</button>
-				</div>
+				<label for="class-set-list">Выбрать набор</label>
+				<select id="class-set-list">
+					<option value="0">--</option>
+				</select>
 			</div>
-		</form>
-		<hr>
-		<ul id="classes-list-conteiner">
-			<!-- Сюда вставляются li сгенерированные JS -->	
-			<li>Hello</li>
-			<li>Hello</li>
-			<li>Hello</li>
-		</ul>
-	</div>
+			<div>
+				<label for="class-set-name">Создать набор</label>
+				<input id="class-set-name" type="text" value="">
+				<button id="class-set-create">Создать</button>
+			</div>
+		</div>
+		<!--  -->
+		<!-- Создание нового класса существ -->
+		<div id="class-controll">
+			<div>
+				<label for="class-name">Создать класс</label>
+				<input id="class-name" type="text" size="20" value="">
+			</div>
+			<div>
+				<label for="pastils-for-unit">Пастилок каждому</label>
+				<input id="pastils-for-unit" type="text" size="6" value="0">
+			</div>
+			<div>
+				<label for="class-unit-number">Существ в классе</label>
+				<input id="class-unit-number" type="text" size="6" value="0">
+			</div>
+			<div>
+				<button id="class-create">Применить</button>
+			</div>
+		</div>
+		<!--  -->
+	</header>
+	<!-- текстовая информация по активному набору классов существ. -->
 	<div id="classes-textinfo">
 		<table>
 			<!-- Показ общей информации -->

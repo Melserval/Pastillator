@@ -1,0 +1,19 @@
+// Элементы управления созданием новых и
+// выбора существующиъ наборов классов.
+
+#class-set-controll {
+	display: inline-block;
+	border: 1px solid #F1870DFF;
+	border-radius: 3px;
+	background-color: #FFF1C8;
+	padding: 10px;
+
+	> div {
+		display: inline-block;
+	}
+}
+
+#class-set-list {
+	width: 177px;
+	height: 21px;
+}
