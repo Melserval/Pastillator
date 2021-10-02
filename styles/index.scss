@@ -33,10 +33,11 @@ header {
 	background-color: #F9F9F9;
 }
 
+// элемент - столбик диаграммы.
 .class-conteiner {
 	position: relative;
 	display: inline-block;
-	min-width: 40px;
+	min-width: 4px;
 	height: 100%;
 	text-align: center;
 	background-color: #f7f4f4;
