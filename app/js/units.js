@@ -1,12 +1,49 @@
 "use strict";
 
+// миксин для биндинга рендера вью-эелементов для объектов с данными.
+const mixin_bindRender = {
+	/**
+	 * 
+	 * @param {HTMLElement} nodeElement родительский элемент для размещения вью.
+	 * @param {Class} viewConstructor   конструктор объекта вью.
+	 * @param {Function} callbackHelper функция связвания полей вью с объектом данных.
+	 */
+	bindRender(nodeElement, viewConstructor, callbackHelper) {
+		// класс обертка для объектов вью, связывающая их 
+		// с обслуживающими функциями, заданными при биндиге.
+		const c = class extends viewConstructor {
+			constructor(model) {
+				super();
+				this.model = model;
+			} 
+			update() {
+				callbackHelper(this, this.model);
+			}
+			show() {
+				this.insertInto(nodeElement);
+			}
+		}
+		if (!this._renders) this._renders = [];
+		this._renders.push(c);
+	}
+};
+
+
 // хранение данных
 const unitData = new class UnitData {
 	constructor () {
-		this.activeSetName = "";
 		this._activeSet = null;
 		this.unitClassesSet = [];
 		this._viewsHelper = [];
+		this._events = {};
+	}
+
+	get activeSetName() {
+		return this._activeSet.setName;
+	}
+
+	get activeSetID() {
+		return this._activeSet.setID;
 	}
 
 	toJSON() {
@@ -17,15 +54,36 @@ const unitData = new class UnitData {
 	}
 
 	fromJSON(json) {
-		this.activeSetName = json['active'];
-		this.unitClassesSet = json['sets'].map(e => UnitClassSet.fromJSON(e));
-		for (let set of this.unitClassesSet) {
-			if (set.setName === this.activeSetName) {
-				set.renderItems();
-				this._activeSet = set;
-			}
+		this.unitClassesSet = json['sets'].map(ucs => UnitClassSet.fromJSON(ucs));
+		this.unitClassesSet.forEach(ucs => ucs.render());
+		this.activateSet(json['active']);
+	}
+
+	/**
+	 * активация указанного набора.
+	 * @param  {string | UnitClassSet} needle ИД или название набора | объект набора.
+	 */
+	activateSet(needle) {
+		if (needle === this._activeSet?.setID 
+		|| needle === this._activeSet?.setName
+		|| needle === this._activeSet) {
+			return;
 		}
-		this.updateRender();
+
+		if (typeof needle === "string") {
+			var result = this.unitClassesSet.find(cls => cls.setID === needle || cls.setName === needle) ?? false;
+		} 
+		else if (needle instanceof UnitClassSet) {
+			var result = (needle === this._activeSet) ? false : needle;
+		}
+
+		if (result) {
+			this._activeSet?.clean();
+			this._activeSet = result;
+			this._activeSet.renderItems();
+			this.updateRender();
+			this.trigger("changeset", {id: this._activeSet.setID, name: this._activeSet.setName});
+		}
 	}
 
 	get activeSet() {
@@ -33,9 +91,10 @@ const unitData = new class UnitData {
 	}
 
 	newSet(name) {
-		this.activeSetName = name;
-		this.unitClassesSet.push(this._activeSet = new UnitClassSet(name));
-		this.updateRender();
+		const class_set = new UnitClassSet(name);
+		class_set.render();
+		this.unitClassesSet.push(class_set);
+		this.activateSet(class_set);
 	}
 
 	listNames() {
@@ -64,8 +123,30 @@ const unitData = new class UnitData {
 	}
 
 	updateRender() {
+		// TODO: Вот пример почему нужно решить задания для каждой 
+		// вьюшной функции привязки к своему рендеру! ! !
 		this._viewsHelper.forEach(func => func(this._activeSet));
 	}
+
+	// сервис событий.
+	trigger(eventName, ...eventArgs) {
+		if ( !this._events[eventName]) return;
+		this._events[eventName].forEach(handler => handler.apply(this, eventArgs));
+	}
+	on(eventName, handler) {
+		if (!this._events[eventName]) this._events[eventName] = [];
+		this._events[eventName].push(handler);
+	}
+	off(eventName, handler) {
+		if (this._events[eventName]) {
+			for (let i = this._events[eventName].length - 1; i >= 0; i--) {
+				if (this._events[eventName][i] === handler) {
+					this._events[eventName].splice(i, 1);
+				}
+			}
+		}
+	}
+
 };
 
 // содержит набор связанных сущностей, для хранения различных 
@@ -76,14 +157,18 @@ class UnitClassSet {
 	 * constructor
 	 * @param  {string} setName название набора.
 	 */
-	constructor(setName) {
+	constructor(setName, id=null) {
+		this.constructor._count_class_sets += 1;
+
 		this.setName = setName;
+		this.setID = id ?? (Date.now() + this.constructor._count_class_sets).toString(24);
 		// общее количество пастилок для всех существ во всех сословиях.
 		this.allPastils = 0;
 		// общее количество пастилок выделенных на 1 существо из каждого сословия.
 		this.pastilsForUnits = 0;
 		this.allUnits = 0;
 		this._units = [];
+		this._views = [];
 	}
 
 	get allClasses() {
@@ -108,6 +193,7 @@ class UnitClassSet {
 		this._units.forEach(unit => unit.updateRender());
 	}
 
+	// отображение хранимых классов.
 	renderItems() {
 		this._units.forEach(item => item.render());
 	}
@@ -124,7 +210,27 @@ class UnitClassSet {
 		unit.add(...json["units"].map(e => UnitClassHub.fromJSON(e)));
 		return unit;
 	};
+
+	render() {
+		for (let renderView of this.constructor._renders) {
+			let view = new renderView(this);
+			view.update();
+			view.show();
+			this._views.push(view);
+		}
+	}
+
+	updateRender() {
+		this._views.forEach(view =>  view.update());
+	}
+
+	clean() {
+		this._units.forEach(u => u.clean());
+	}
+
+	static _count_class_sets = 0;
 }
+Object.assign(UnitClassSet, mixin_bindRender);
 
 
 /**
@@ -180,7 +286,7 @@ class UnitClassHub {
 	}
 
 	get percentOfPastils() {
-		if (this._pastils < 1) return 0;	
+		if (this._pastils < 1) return 0;
 		// переключение процентов
 		switch (2) {
 			case 1: // процент пастилок от всего их количества.
@@ -211,33 +317,27 @@ class UnitClassHub {
 	}
 
 	updateRender() {
-		this._views.forEach((view, index) => {
-			if (view) // возможен заполнитель null (обеспечение совпадений индексов)!
-				this.constructor._renders[index].helper(view, this);
-		});
+		this._views.forEach(view => view.update());
 	}
 
-
 	render() {
-		// создание вьюшек и установка стартовых значений.
-	    // при пропуске создания view, в _views должен быть 
-	    // вставлен заполнитель (null), для совпадений индексов
-	    // массивов _views и prototype._renders !!!
-	    this.constructor._renders.forEach(render => {
-	    	const view = new render.view();
-	    	view.insertInto(render.node);
-	    	this._views.push(view);
-	    });
-	    this.updateRender();
+		for (let render of this.constructor._renders) {
+			let view = new render(this);
+			view.show();
+			this._views.push(view);
+		}
+		this.updateRender();
+	}
+
+	clean() {
+		this._views.forEach(view => view.goodbyeDOM());
+		this._views.length = 0;
 	}
 
 	// установка ссылки на агрегирующий объект типа UnitClassSet.
 	bindSet(classset) {
 		this._classset = classset;
 	};
-
-	// конструкторы DOM элементов отображения данных.
-	static _renders = [];
 
 	toString() {
 		return `${this._name} ${this._pastils} ${this._numberOfUnints}`;
@@ -255,19 +355,5 @@ class UnitClassHub {
 	static fromJSON({name, pastils, units, id}) {
 		return new this(name, pastils, units, id);
 	}
-
-	/**
-	 * Назначает конструктор для view-элемента-объекта
-	 * и функцию, в которой происходит процесс работы с 
-	 * экземпляром созданного view.
-	 *
-	 * @param {HTMLElement} nodeElement хтмл элемент контейнер.
-	 * @param  {Class} viewConstructor конструктор объектов view.
-	 * @param  {Function} callbackHelper  функция для работы с экземпяром view.
-	 *                                    арг 1: экземпляр view.
-	 *                                    arg 2: экземпляр источник данных.
-	 */
-	static bindRender(nodeElement, viewConstructor, callbackHelper) {
-		this._renders.push({node: nodeElement, view: viewConstructor, helper: callbackHelper});
-	};
 }
+Object.assign(UnitClassHub, mixin_bindRender);

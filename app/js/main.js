@@ -1,13 +1,15 @@
 'use strict';
 
+// елементы панели контроля набора классов.
+const selectSetsClass = document.getElementById("class-set-list")
+    , inputSetsName = document.getElementById("class-set-name")
+    , bthCreateSets = document.getElementById("class-set-create");
+
 // елементы панели контроля классов.
-const classControllPanel = {
-    conteiner: document.getElementById('class-controll'),
-    inputClassName: document.querySelector('#class-controll label:nth-child(2) input'),
-    inputPastilCount: document.querySelector('#class-controll label:nth-child(3) input'),
-    inputUnitCount: document.querySelector('#class-controll label:nth-child(4) input'),
-    inputApplyButton: document.querySelector('#class-controll [type="button"]')
-};
+const inputClassName   = document.getElementById('class-name')
+    , inputPastilCount = document.getElementById('pastils-for-unit')
+    , inputUnitCount   = document.getElementById('class-unit-number')
+    , btnCreateClass = document.getElementById('class-create');
 
 // контейнер отображения диаграмм сословий.
 const diagramInfoConteiner = document.getElementById('classes-conteiner');
@@ -21,12 +23,17 @@ const tbodyClassesInfo = document.getElementById("classes-info");
 
 //--- установка и настройка view хтмл элементов. ---
 //
-// показ общих данных в таблице
+// показ общих (сводных) данных в таблице
 unitData.bindView(classSet => {
     tbodyClassesInfo.rows[1].cells[0].textContent = classSet.setName; // название набора
     tbodyClassesInfo.rows[3].cells[0].textContent = classSet.allUnits; // общее число существ
     tbodyClassesInfo.rows[3].cells[1].textContent = classSet.allPastils; // общее число пастилок на всех.
     tbodyClassesInfo.rows[3].cells[2].textContent = classSet.allClasses; // число классов в наборе.
+});
+// показ списка наборов в элементе select.
+UnitClassSet.bindRender(selectSetsClass, RenderOptionElement, (view, model) => {
+    view.optionValue = model.setID;
+    view.optionText = model.setName;
 });
 // показ текстовых данных в таблице.
 UnitClassHub.bindRender(textInfoConteiner, RenderTextInfo, (view, model) => {
@@ -46,16 +53,18 @@ UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) =
     view.percentOfPastils     = model.percentOfPastils;
 });
 
-// базовый набор данных.
-unitData.load();
+// вызов создание набора классов по клику кнопки.
+bthCreateSets.addEventListener('click', function (event) {
+    const setName = inputSetsName.value;
+    unitData.newSet(setName);
+});
 
 // обработка нажатия кнопки создания класса и сосздание оного....
-classControllPanel.inputApplyButton.addEventListener(
-'click', 
-function (event) {
-    const name = classControllPanel.inputClassName.value;
-    const pastils = Number(classControllPanel.inputPastilCount.value);
-    const units = Number(classControllPanel.inputUnitCount.value);
+btnCreateClass.addEventListener('click', function (event) {
+    // TODO: Проверки видимо следует перенести в класс. Так как отсутствие данных - мешает работе именно класса.
+    const name = inputClassName.value;
+    const pastils = Number(inputPastilCount.value);
+    const units = Number(inputUnitCount.value);
     try {
         if (isNaN(pastils) || isNaN(units)) {
             throw new Error("Не числовое значение");
@@ -81,9 +90,18 @@ function randomColor() {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-diagramInfoConteiner.addEventListener('click', function (event) {
-    var mytar = event.target.closest('.class-conteiner');
-    if (mytar) {
-        console.log(mytar);
-    } 
+// выбор нового набора классов в элементе селект.
+selectSetsClass.addEventListener('change', e => unitData.activateSet(e.target.value));
+
+unitData.on("changeset", function(e) {
+    if (selectSetsClass.value === e.id) return;
+    for (let option of selectSetsClass.options) {
+        if (option.value === e.id) {
+            option.selected = true;
+            break;
+        }
+    }
 });
+
+// базовый набор данных.
+unitData.load();
