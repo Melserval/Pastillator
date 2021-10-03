@@ -55,29 +55,37 @@ UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) =
 
 // вызов создание набора классов по клику кнопки.
 bthCreateSets.addEventListener('click', function (event) {
-    const setName = inputSetsName.value;
-    unitData.newSet(setName);
+    const setName = inputSetsName.value.trim();
+    try {
+        if (setName.length < 1) throw new Error("Не указано имя набора.");
+        unitData.newSet(setName);
+        // очистка полей ввода
+        inputSetsName.value = "";
+    } catch (err) {
+        console.error(err);
+        alert(`Ошибка создания набора!\n${err.name}: ${err.message}`);
+    }
 });
 
 // обработка нажатия кнопки создания класса и сосздание оного....
 btnCreateClass.addEventListener('click', function (event) {
     // TODO: Проверки видимо следует перенести в класс. Так как отсутствие данных - мешает работе именно класса.
-    const name = inputClassName.value;
+    const name = inputClassName.value.trim();
     const pastils = Number(inputPastilCount.value);
     const units = Number(inputUnitCount.value);
     try {
-        if (isNaN(pastils) || isNaN(units)) {
-            throw new Error("Не числовое значение");
-        }
-        if (name.trim().length < 1) {
-            throw new Error("Не указано имя сословия");
-        }
+        if (isNaN(pastils) || pastils < 0) throw new TypeError("Неверное значение для пастилок.");
+        if (isNaN(units) || units < 0) throw new TypeError("Неверное значение для существ.")
+        if (name.length < 1) throw new Error("Не указано имя сословия");
+
         const unitObj = new UnitClassHub(name, pastils, units);
         unitData.activeSet.add(unitObj);
         unitObj.render();
+        // очистка полей ввода
+        inputClassName.value = inputPastilCount.value = inputUnitCount.value = "";
     } catch(err) {
         console.error(err);
-        alert("Неверные данные сословия!");
+        alert(`Ошибка создания сословия!\n${err.name}: ${err.message}`);
     }
 });
 
