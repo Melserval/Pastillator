@@ -55,6 +55,10 @@ class RenderTextInfo {
         parentNode.append(this._tr);
         return this._tr;
     };
+
+    goodbyeDOM() {
+        this._tr.remove();
+    }
 }
 
 /**
@@ -151,4 +155,42 @@ class RenderDiagramInfo {
         parentNode.append(comment, this._elementNode);
         return this._elementNode;
     };
+
+    goodbyeDOM() {
+        this._elementNode.remove();
+    }
+}
+
+
+/**
+ * DOM элемент [options] для элемента [select].
+ */
+class RenderOptionElement {
+
+    constructor() {
+        this._elementNode = document.createElement('option');
+        this._elementNode.setAttribute("value", "?");
+    }
+
+    set optionText(value) {
+        this._elementNode.textContent = value;
+    }
+
+    set optionValue(value) {
+        this._elementNode.value = value;
+    }
+
+    insertInto(parentNode) {
+        if (parentNode instanceof HTMLSelectElement) {
+            parentNode.add(this._elementNode);
+            return this._elementNode;
+        } else {
+            throw new Error("Неверный родительский элемент для: " + this._elementNode);
+            return null;
+        }
+    };
+
+    goodbyeDOM() {
+        this._elementNode.remove();
+    }
 }
