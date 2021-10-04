@@ -57,13 +57,16 @@ UnitClassHub.bindRender(diagramInfoConteiner, RenderDiagramInfo, (view, model) =
 bthCreateSets.addEventListener('click', function (event) {
     const setName = inputSetsName.value.trim();
     try {
-        if (setName.length < 1) throw new Error("Не указано имя набора.");
+        if (setName.length < 1) throw new InvalidNameError("Не указано имя набора.");
         unitData.newSet(setName);
         // очистка полей ввода
         inputSetsName.value = "";
     } catch (err) {
-        console.error(err);
-        alert(`Ошибка создания набора!\n${err.name}: ${err.message}`);
+        if (err instanceof ValidationError) {
+            alert(`Ошибка создания набора!\n${err.name}: ${err.message}`);
+        } else {
+            throw err;
+        }
     }
 });
 
@@ -74,9 +77,9 @@ btnCreateClass.addEventListener('click', function (event) {
     const pastils = Number(inputPastilCount.value);
     const units = Number(inputUnitCount.value);
     try {
-        if (isNaN(pastils) || pastils < 0) throw new TypeError("Неверное значение для пастилок.");
-        if (isNaN(units) || units < 0) throw new TypeError("Неверное значение для существ.")
-        if (name.length < 1) throw new Error("Не указано имя сословия");
+        if (isNaN(pastils) || pastils < 0) throw new InvalidNumError("Неверное значение количества пастилок.");
+        if (isNaN(units) || units < 0) throw new InvalidNumError("Неверное значение количество существ.")
+        if (name.length < 1) throw new InvalidNameError("Не указано имя сословия");
 
         const unitObj = new UnitClassHub(name, pastils, units);
         unitData.activeSet.add(unitObj);
@@ -84,8 +87,11 @@ btnCreateClass.addEventListener('click', function (event) {
         // очистка полей ввода
         inputClassName.value = inputPastilCount.value = inputUnitCount.value = "";
     } catch(err) {
-        console.error(err);
-        alert(`Ошибка создания сословия!\n${err.name}: ${err.message}`);
+        if (err instanceof ValidationError) {
+            alert(`Ошибка создания сословия!\n${err.name}: ${err.message}`);
+        } else {
+            throw err;
+        }
     }
 });
 
